@@ -1,25 +1,10 @@
-from enum import Enum
-
-class Direction(Enum):
-    NORTH = 0
-    EAST = 1
-    SOUTH = 2
-    WEST = 3
-    FORWARD = 4
-    RIGHT = 5
-    BACKWARD = 6
-    LEFT = 7
-
-    def change_direction(self, direction, turn):
-
-
-
 class MDP:
     states = [] # list of states
     actions = None # Action function, ACTIONS(s)
     p = None # Transition Model, P(s'|s,a)
     rewards = None # Rewards function, REWARDS(s)
     discount = 1 # discount to rewards
+
 
     def __init__(self, S, A, P, R, Y):
         """
@@ -36,6 +21,7 @@ class MDP:
         p = P
         rewards = R
         discount = Y
+
 
     def get_successor_states(self, s):
         successor_states = []
@@ -71,4 +57,3 @@ def value_iteration(mdp, epsilon):
 
         if delta < epsilon * (1 - mdp.discount) / mdp.discount:
             return u
-
