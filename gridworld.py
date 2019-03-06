@@ -1,8 +1,7 @@
 from mdp import *
 
-r = -0.04
+r = -1.7
 y = 1
-e = 0.1
 
 finish_line_spaces = []
 pits = []
@@ -125,20 +124,122 @@ grid_world = MDP(state_space, actions, transition_model, rewards, y)
 grid_world.get_successors = successors
 grid_world.is_terminal_state = is_terminal
 
-grid_world.value_iteration(e)
+grid_world.value_iteration()
 
 print()
-
-policies = dict()
-
-for state in state_space:
-    policies[state] = grid_world.optimal_policy(state)
-
-print()
-print("Utilities:")
-for thing in grid_world.u.items():
-    print(thing)
-
-print()
+print("Value Iteration:")
 print("Policies: (r = %.3f)" % r)
-print(grid_world)
+a = str(grid_world)
+print(a)
+
+grid_world.policy_iteration()
+
+print()
+print("Policy Iteration:")
+print("Policies: (r = %.3f)" % r)
+b = str(grid_world)
+print(b)
+
+print()
+
+if a == b:
+    print("Success! They match!")
+else:
+    print("No match...")
+
+
+
+def find_thresholds_value(mdp, a, b):
+    b = min(0, b) # low point
+    a = max(-100, a) # high point
+    c = (b + a) / 2 # mid point
+    global r
+
+    thresholds = list()
+
+    # base case
+    if b - a < 0.0000001:
+        thresholds.append(c)
+        return thresholds
+
+    # recursive case
+
+    r = a
+    mdp.reward = rewards
+    mdp.value_iteration()
+    a_result = str(mdp)
+
+    r = b
+    mdp.reward = rewards
+    mdp.value_iteration()
+    b_result = str(mdp)
+
+    r = c
+    mdp.reward = rewards
+    mdp.value_iteration()
+    c_result = str(mdp)
+
+
+    if a_result != c_result:
+        thresholds += find_thresholds_value(mdp, a, c)
+
+    if b_result != c_result:
+        thresholds += find_thresholds_value(mdp, c, b)
+
+    return thresholds
+
+def find_thresholds_policy(mdp, a, b):
+    b = min(0, b) # low point
+    a = max(-100, a) # high point
+    c = (b + a) / 2 # mid point
+    global r
+
+    thresholds = list()
+
+    # base case
+    if b - a < 0.0000001:
+        thresholds.append(c)
+        return thresholds
+
+    # recursive case
+
+    r = a
+    mdp.reward = rewards
+    mdp.policy_iteration()
+    a_result = str(mdp)
+
+    r = b
+    mdp.reward = rewards
+    mdp.policy_iteration()
+    b_result = str(mdp)
+
+    r = c
+    mdp.reward = rewards
+    mdp.policy_iteration()
+    c_result = str(mdp)
+
+
+    if a_result != c_result:
+        thresholds += find_thresholds_policy(mdp, a, c)
+
+    if b_result != c_result:
+        thresholds += find_thresholds_policy(mdp, c, b)
+
+    return thresholds
+
+threshold_list_value = find_thresholds_value(grid_world, -10, 0)
+
+threshold_list_value.append(0)
+
+print(threshold_list_value)
+
+
+"""
+
+threshold_list_policy = find_thresholds_policy(grid_world, -10, 0)
+
+threshold_list_policy.append(0)
+
+print(threshold_list_policy)
+
+"""
